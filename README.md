@@ -60,7 +60,7 @@ A **modern contest participation website** with beautiful animations and mobile-
 ### 1️⃣ Clone & Install
 
 \`\`\`bash
-git clone https://github.com/Ayomide650/contest-participation-app.git
+git clone https://github.com/Ayomide650/participate-web.git
 cd contest-participation-app
 npm install
 \`\`\`
