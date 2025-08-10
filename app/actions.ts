@@ -9,32 +9,36 @@ const supabase = createClient(
 
 export async function submitParticipation(formData: FormData) {
   try {
-    const uid = formData.get("uid") as string
-    const account_name = formData.get("account_name") as string
+    const mod_name = formData.get("mod_name") as string
+    const phone_number = formData.get("phone_number") as string
     const email = formData.get("email") as string
 
     // Validate required fields
-    if (!uid || !account_name) {
-      return { success: false, error: "UID and Account Name are required" }
+    if (!mod_name || !phone_number) {
+      return { success: false, error: "Mod Name and Phone Number are required" }
     }
 
-    // Check if UID already exists
-    const { data: existingParticipant } = await supabase.from("participants").select("id").eq("uid", uid).single()
+    // Check if phone number already exists
+    const { data: existingParticipant } = await supabase
+      .from("participants")
+      .select("id")
+      .eq("phone_number", phone_number)
+      .single()
 
     if (existingParticipant) {
-      return { success: false, error: "This UID is already registered" }
+      return { success: false, error: "This phone number has already made a request" }
     }
 
     // Insert new participant
     const { error } = await supabase.from("participants").insert({
-      uid,
-      account_name,
+      mod_name,
+      phone_number,
       email: email || null,
     })
 
     if (error) {
       console.error("Supabase error:", error)
-      return { success: false, error: "Failed to register participant" }
+      return { success: false, error: "Failed to submit mod request" }
     }
 
     return { success: true }
