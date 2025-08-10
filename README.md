@@ -165,8 +165,8 @@ npm run dev
 
 <div align="center">
 
-![GitHub stars](https://img.shields.io/github/stars/Ayomide650/contest-participation-app?style=for-the-badge&color=FFD700)
-![GitHub forks](https://img.shields.io/github/forks/Ayomide650/contest-participation-app?style=for-the-badge&color=32CD32)
+![GitHub stars](https://img.shields.io/github/stars/Ayomide650/participate-web?style=for-the-badge&color=FFD700)
+![GitHub forks](https://img.shields.io/github/forks/Ayomide650/participate-web?style=for-the-badge&color=32CD32)
 
 </div>
 
