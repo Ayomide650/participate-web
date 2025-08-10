@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Users } from "lucide-react"
+import { Users, AlertCircle } from "lucide-react"
 
 // Image URLs array with your Imgur images in sequential order
 const imageUrls = [
@@ -30,6 +30,8 @@ export default function ContestPage() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [loadingProgress, setLoadingProgress] = useState(0)
   const [showSuccess, setShowSuccess] = useState(false)
+  const [showAlert, setShowAlert] = useState(false)
+  const [alertMessage, setAlertMessage] = useState("")
 
   // Sequential image rotation logic
   useEffect(() => {
@@ -77,6 +79,16 @@ export default function ContestPage() {
     return progressInterval
   }
 
+  const showAlertMessage = (message: string) => {
+    setAlertMessage(message)
+    setShowAlert(true)
+
+    // Hide alert after 5 seconds
+    setTimeout(() => {
+      setShowAlert(false)
+    }, 5000)
+  }
+
   const handleSubmit = async (formData: FormData) => {
     setIsSubmitting(true)
     setMessage("")
@@ -99,7 +111,7 @@ export default function ContestPage() {
 
           if (result.success) {
             setShowSuccess(true)
-            setMessage("Successfully registered for the contest!")
+            setMessage("Successfully submitted your mod request!")
             // Reset form
             const form = document.getElementById("contest-form") as HTMLFormElement
             form?.reset()
@@ -111,7 +123,12 @@ export default function ContestPage() {
               setShowSuccess(false)
             }, 4000)
           } else {
-            setMessage(result.error || "An error occurred")
+            // Check if it's a phone number duplicate error
+            if (result.error?.includes("phone number has already made a request")) {
+              showAlertMessage("⚠️ This phone number has already been used to make a request!")
+            } else {
+              setMessage(result.error || "An error occurred")
+            }
           }
         }, 800)
       }, 3000)
@@ -124,6 +141,25 @@ export default function ContestPage() {
 
   return (
     <div className="min-h-screen bg-gray-900 relative">
+      {/* Phone Number Alert Overlay */}
+      {showAlert && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 transition-all duration-300">
+          <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white p-6 rounded-2xl shadow-2xl transform transition-all duration-600 animate-bounce-in mx-4 max-w-sm">
+            <div className="text-center">
+              <AlertCircle className="w-12 h-12 mx-auto mb-3 animate-pulse" />
+              <h3 className="text-xl font-semibold mb-2">Number Already Used!</h3>
+              <p className="text-orange-100 text-sm leading-relaxed">{alertMessage}</p>
+              <Button
+                onClick={() => setShowAlert(false)}
+                className="mt-4 bg-white/20 hover:bg-white/30 text-white border border-white/30 px-6 py-2 rounded-full transition-all duration-300"
+              >
+                Got it
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Loading Overlay */}
       {isSubmitting && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center z-50 transition-all duration-300">
@@ -157,9 +193,7 @@ export default function ContestPage() {
               ></div>
             </div>
 
-            <h2 className="text-2xl sm:text-3xl font-semibold mb-3 text-white drop-shadow-lg">
-              Processing Registration
-            </h2>
+            <h2 className="text-2xl sm:text-3xl font-semibold mb-3 text-white drop-shadow-lg">Processing Request</h2>
             <p className="text-gray-300 mb-8 text-sm sm:text-base">Please wait while we handle your submission</p>
 
             {/* Progress Bar */}
@@ -233,7 +267,7 @@ export default function ContestPage() {
         <div className="flex items-center justify-center space-x-2">
           <Users className="h-4 w-4 text-blue-400" />
           <span className="text-sm sm:text-base font-normal text-white">
-            Total Participants: <span className="text-blue-400 font-medium">{participantCount}</span>
+            Total Requests: <span className="text-blue-400 font-medium">{participantCount}</span>
           </span>
         </div>
       </div>
@@ -242,10 +276,8 @@ export default function ContestPage() {
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-md">
         <Card className="shadow-lg bg-gray-800 border-gray-700">
           <CardHeader className="text-center px-4 sm:px-6 py-4 sm:py-6">
-            <CardTitle className="text-xl sm:text-2xl font-normal text-white">Contest Registration</CardTitle>
-            <p className="text-sm sm:text-base text-gray-300 font-normal mt-2">
-              Join the contest and be part of something amazing!
-            </p>
+            <CardTitle className="text-xl sm:text-2xl font-normal text-white">Mod APKs</CardTitle>
+            <p className="text-sm sm:text-base text-gray-300 font-normal mt-2">Drop the names of mod apks you want</p>
           </CardHeader>
 
           <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
@@ -258,30 +290,30 @@ export default function ContestPage() {
               className="space-y-3 sm:space-y-4"
             >
               <div>
-                <Label htmlFor="uid" className="text-sm font-normal text-gray-200">
-                  UID <span className="text-red-400">*</span>
+                <Label htmlFor="mod_name" className="text-sm font-normal text-gray-200">
+                  Mod Name <span className="text-red-400">*</span>
                 </Label>
                 <Input
-                  id="uid"
-                  name="uid"
+                  id="mod_name"
+                  name="mod_name"
                   type="text"
                   required
-                  placeholder="Enter your UID"
+                  placeholder="Enter mod APK name"
                   className="mt-1 bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 h-10 sm:h-11 text-sm sm:text-base"
                   disabled={isSubmitting}
                 />
               </div>
 
               <div>
-                <Label htmlFor="account_name" className="text-sm font-normal text-gray-200">
-                  Name of Account <span className="text-red-400">*</span>
+                <Label htmlFor="phone_number" className="text-sm font-normal text-gray-200">
+                  Phone Number [Include country code] <span className="text-red-400">*</span>
                 </Label>
                 <Input
-                  id="account_name"
-                  name="account_name"
-                  type="text"
+                  id="phone_number"
+                  name="phone_number"
+                  type="tel"
                   required
-                  placeholder="Enter your account name"
+                  placeholder="e.g. +1234567890"
                   className="mt-1 bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 h-10 sm:h-11 text-sm sm:text-base"
                   disabled={isSubmitting}
                 />
@@ -289,7 +321,7 @@ export default function ContestPage() {
 
               <div>
                 <Label htmlFor="email" className="text-sm font-normal text-gray-200">
-                  Email (Optional)
+                  Email
                 </Label>
                 <Input
                   id="email"
